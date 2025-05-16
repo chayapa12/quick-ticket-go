@@ -14,6 +14,7 @@ import Confirmation from "./pages/Confirmation";
 import MyTickets from "./pages/MyTickets";
 import NotFound from "./pages/NotFound";
 
+// Initialize the QueryClient for React Query
 const queryClient = new QueryClient();
 
 const App = () => (
