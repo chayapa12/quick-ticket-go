@@ -1,9 +1,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Replace these with your actual Supabase credentials
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_KEY = 'your-anon-public-key';
+// Update with your actual Supabase project URL
+const SUPABASE_URL = 'https://zkthdezdlpnotbiejqtq.supabase.co';
+const SUPABASE_KEY = 'your-anon-public-key'; // You'll need to replace this with your actual anon key
 
 // Create and export the Supabase client
 // Note: In a real application, you would use environment variables for these values
