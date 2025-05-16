@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Check, Calendar } from "lucide-react";
 import { generateBookingId } from "@/lib/utils";
 import { CartItem } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
 
 interface BookingDetails {
   items: CartItem[];
@@ -16,8 +17,32 @@ interface BookingDetails {
 const Confirmation = () => {
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
   const [bookingId] = useState(generateBookingId());
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (!session) {
+            // Redirect to login if not authenticated
+            navigate("/login");
+            return;
+          }
+          
+          // Set user email if authenticated
+          setUserEmail(session.user.email);
+        }
+      } catch (error) {
+        console.error("Authentication check error:", error);
+      }
+    };
+    
+    checkAuth();
+    
     // In a real app, we would get this from API response
     // For demo purposes, we'll retrieve it from localStorage
     const bookingJSON = localStorage.getItem('bookingDetails');
@@ -30,7 +55,7 @@ const Confirmation = () => {
         setBookingDetails(null);
       }
     }
-  }, []);
+  }, [navigate]);
 
   if (!bookingDetails) {
     return (
@@ -64,6 +89,11 @@ const Confirmation = () => {
               <p className="text-gray-600 mt-2">
                 Thank you for your purchase. Your tickets are on the way!
               </p>
+              {userEmail && (
+                <p className="text-gray-600 mt-1">
+                  Confirmation sent to: <strong>{userEmail}</strong>
+                </p>
+              )}
             </div>
             
             {/* Booking Details */}

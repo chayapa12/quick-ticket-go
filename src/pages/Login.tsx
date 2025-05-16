@@ -2,15 +2,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,17 +28,46 @@ const Login = () => {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Normally we would validate credentials here
-      // For demo, just show success toast and redirect
+    try {
+      // Use Supabase authentication
+      if (supabase) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          toast({
+            title: "Login Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Success!",
+            description: "You have been logged in successfully",
+          });
+          // Redirect to confirmation page on successful login
+          navigate("/confirmation");
+        }
+      } else {
+        // Fallback for when supabase client isn't initialized
+        toast({
+          title: "Error",
+          description: "Authentication service is not available",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Success!",
-        description: "You have been logged in successfully",
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
-      // Redirect would happen here
-    }, 1500);
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
